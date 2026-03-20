@@ -122,11 +122,27 @@ keycloak-auth-generator/
 
 ## 설치
 
+### Claude Code (npx)
+
+프로젝트 루트에서 아래 명령어로 원하는 스킬을 바로 설치할 수 있습니다.
+
+```bash
+# keycloak-auth-generator 설치
+npx degit jayounglee92/my-claude-skill/keycloak-auth-generator .claude/skills/keycloak-auth-generator
+
+# fe-sdd-tdd 설치
+npx degit jayounglee92/my-claude-skill/fe-sdd-tdd .claude/skills/fe-sdd-tdd
+```
+
+> `npx degit`은 Git 없이 GitHub 서브폴더만 다운로드합니다. 별도 설치 없이 바로 사용 가능합니다.
+
 ### Claude.ai
+
 1. 각 스킬 폴더를 ZIP으로 압축
 2. **Settings → Features → Skills**에서 업로드
 
-### Claude Code
+### 수동 설치
+
 ```bash
 # 프로젝트에 스킬 복사
 cp -r fe-sdd-tdd/ your-project/.claude/skills/

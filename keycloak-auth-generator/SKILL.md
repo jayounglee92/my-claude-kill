@@ -167,9 +167,61 @@ When detected, confirm: "This looks like a Next.js project. Is that correct?"
 Confirm all required fields (framework, Keycloak URL, realm, client ID) are collected.
 If anything is missing, ask before generating code.
 
+### Step 1.5: Analyze Existing Project Structure
+
+If the user indicated this is an existing project (or if project files are accessible), actively analyze the project before generating code.
+
+**1. Read dependency files:**
+
+- `package.json` → installed packages, scripts, framework version
+- `requirements.txt` / `pyproject.toml` → Python packages
+- `pom.xml` / `build.gradle` → Java dependencies
+
+**2. Scan directory structure:**
+
+- Identify folder layout (e.g. `src/app/` vs `app/`, `pages/` vs App Router)
+- Check for existing auth-related files (`middleware.ts`, `auth.ts`, `guards/`, `oidc/`, etc.)
+- Check for existing login/logout pages
+- Detect existing `.env` / `.env.local`
+
+**3. Identify conflicts and ask before generating:**
+
+If any of the following exist, ask the user explicitly before proceeding:
+
+```text
+Before generating, I found some existing files that may conflict:
+
+- src/app/login/page.tsx — login page already exists
+- middleware.ts — auth middleware already exists
+- .env.local — environment file already exists
+
+How would you like to handle these?
+1. Overwrite — replace with newly generated files
+2. Merge — I'll show a diff and you decide
+3. Skip — keep existing files, only generate new ones
+4. Ask me for each file individually
+```
+
+**4. Adapt generation to project conventions:**
+
+- Match existing folder structure (don't impose new layout)
+- Use already-installed package versions (don't downgrade)
+- Apply version-specific logic (e.g. Next.js 15 vs 16 middleware naming)
+
+**5. Report before generating:**
+
+```text
+Project Analysis:
+- Framework: Next.js 15 (App Router, src/ layout)
+- next-auth@4 already installed → will upgrade to v5
+- Conflicts: login page, middleware.ts, .env.local (handling: merge)
+- No existing Keycloak config found
+```
+
 ### Step 2: Generate Framework-Specific Code
 
 Read the appropriate reference file and generate code:
+
 - Next.js → `references/nextjs.md`
 - Vue 3 → `references/vue3.md`
 - Nuxt 3 → `references/nuxt3.md`
@@ -189,6 +241,7 @@ Automatically install required packages after code generation.
 If bash tool is available, execute directly. Otherwise, provide commands.
 
 **Next.js + shadcn/ui:**
+
 ```bash
 npm install next-auth@beta
 npx shadcn@latest init
@@ -197,47 +250,55 @@ npx auth secret
 ```
 
 **Next.js + MUI:**
+
 ```bash
 npm install next-auth@beta @mui/material @emotion/react @emotion/styled
 npx auth secret
 ```
 
 **Next.js + Ant Design:**
+
 ```bash
 npm install next-auth@beta antd @ant-design/icons
 npx auth secret
 ```
 
 **Next.js + Tailwind only:**
+
 ```bash
 npm install next-auth@beta
 npx auth secret
 ```
 
 **Vue 3:**
+
 ```bash
 npm install keycloak-js @josempgon/vue-keycloak
 # + selected UI: npm install vuetify / primevue / element-plus / naive-ui
 ```
 
 **Nuxt 3:**
+
 ```bash
 npm install @sidebase/nuxt-auth next-auth@4.21.1
 # + selected UI: npx nuxi module add @nuxt/ui / npm install vuetify
 ```
 
 **FastAPI:**
+
 ```bash
 pip install fastapi uvicorn "pyjwt[crypto]" httpx
 ```
 
 **Django:**
+
 ```bash
 pip install mozilla-django-oidc
 # + selected UI: pip install django-crispy-forms crispy-bootstrap5
 ```
 
 **Flask:**
+
 ```bash
 pip install flask authlib requests
 ```
@@ -251,7 +312,7 @@ Show results after installation. Provide troubleshooting if errors occur.
 
 After package installation, ask the user:
 
-```
+```text
 Choose your Keycloak server setup:
 
 1. 🐳 Local Docker Keycloak (recommended — test immediately, no server needed)
@@ -266,7 +327,8 @@ Only requires Docker.
 
 **Generate these files:**
 
-1) `docker-compose.yml`:
+1. `docker-compose.yml`:
+
 ```yaml
 version: "3.8"
 services:
@@ -282,7 +344,8 @@ services:
       - "8080:8080"
 ```
 
-2) `keycloak/realm-export.json`:
+2. `keycloak/realm-export.json`:
+
 Auto-generate from user's realm, client ID, and framework-specific redirect URIs.
 Include a test user (testuser / 1234).
 
@@ -316,6 +379,7 @@ Include a test user (testuser / 1234).
 ```
 
 Framework-specific redirect URIs:
+
 - Next.js: `http://localhost:3000/api/auth/callback/keycloak`
 - Vue 3: `http://localhost:5173/*`
 - Nuxt 3: `http://localhost:3000/api/auth/callback/keycloak`
@@ -325,6 +389,7 @@ Framework-specific redirect URIs:
 - Thymeleaf: `http://localhost:8180/login/oauth2/code/keycloak` (use port 8180 for Keycloak)
 
 **Execution** (auto-run if bash tool available):
+
 ```bash
 docker compose up -d
 echo "⏳ Waiting for Keycloak..."
@@ -338,13 +403,15 @@ done
 ```
 
 **Auto-update .env after startup:**
+
 - `KEYCLOAK_URL=http://localhost:8080`
 - `KEYCLOAK_REALM={input}`
 - `KEYCLOAK_CLIENT_ID={input}`
 - `KEYCLOAK_CLIENT_SECRET={secret from realm-export.json}`
 
 **Final message:**
-```
+
+```text
 ✅ Setup complete!
 
 Run: npm run dev (or framework-specific command)
@@ -357,11 +424,12 @@ Keycloak Admin: http://localhost:8080 (admin / admin)
 Do NOT generate Docker files. Populate .env with user-provided values.
 
 Provide detailed Keycloak Admin Console instructions:
+
 1. Create/verify Client
-2. Valid Redirect URIs (framework-specific callback URL)
-3. Web Origins
-4. Client Secret location (Credentials tab)
-5. Test user creation (if needed)
+1. Valid Redirect URIs (framework-specific callback URL)
+1. Web Origins
+1. Client Secret location (Credentials tab)
+1. Test user creation (if needed)
 
 #### Option 3: Code Only
 
@@ -370,7 +438,7 @@ Note that clicking "SSO Login" will fail without a running Keycloak server.
 
 ### Step 6: Final Summary
 
-```
+```text
 📋 Generation Complete
 
 Framework: Next.js (App Router)
