@@ -153,7 +153,7 @@ cp -r keycloak-auth-generator/ your-project/.claude/skills/
 
 두 스킬은 조합해서 사용할 수 있습니다:
 
-```
+```text
 1. keycloak-auth-generator로 인증 코드 생성
 2. fe-sdd-tdd로 생성된 코드에 대한 테스트 작성 + 커스터마이징
 ```
