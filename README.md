@@ -179,26 +179,16 @@ work-tracker/
 **전역 설치** — 모든 프로젝트에서 사용 (work-tracker처럼 프로젝트에 종속되지 않는 스킬에 권장)
 
 ```bash
-mkdir -p ~/.claude/skills ~/.claude/commands
-npx degit jayounglee92/my-claude-skill/work-tracker ~/.claude/skills/work-tracker --force
-echo "출근 기록. 오늘의 Git HEAD를 스냅샷하고 세션 마커를 설정해줘." > ~/.claude/commands/clockin.md
-echo "퇴근 기록. 오늘 하루 세션 컨텍스트를 수집하고 일간 요약을 생성해줘." > ~/.claude/commands/clockout.md
-echo "월간 보고서를 생성해줘." > ~/.claude/commands/recap.md
+curl -fsSL https://raw.githubusercontent.com/jayounglee92/my-claude-skill/main/install.sh | bash -s work-tracker
 ```
 
-> Claude Code를 재시작하면 `/clockin`, `/clockout`, `/recap`이 자동완성 목록에 나타납니다.
+> work-tracker는 설치 시 `/clockin`, `/clockout`, `/recap` 커맨드도 자동 등록됩니다. Claude Code를 재시작하면 적용됩니다.
 
 **프로젝트별 설치** — 현재 프로젝트에서만 사용
 
 ```bash
-# keycloak-auth-generator 설치
-npx degit jayounglee92/my-claude-skill/keycloak-auth-generator .claude/skills/keycloak-auth-generator
-
-# fe-sdd-tdd 설치
-npx degit jayounglee92/my-claude-skill/fe-sdd-tdd .claude/skills/fe-sdd-tdd
-
-# work-tracker 설치
-npx degit jayounglee92/my-claude-skill/work-tracker .claude/skills/work-tracker
+curl -fsSL https://raw.githubusercontent.com/jayounglee92/my-claude-skill/main/install.sh | bash -s keycloak-auth-generator
+curl -fsSL https://raw.githubusercontent.com/jayounglee92/my-claude-skill/main/install.sh | bash -s fe-sdd-tdd
 ```
 
 > `npx degit`은 Git 없이 GitHub 서브폴더만 다운로드합니다. npm에 아무것도 배포할 필요 없이 바로 사용 가능합니다.
