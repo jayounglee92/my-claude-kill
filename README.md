@@ -179,9 +179,14 @@ work-tracker/
 **전역 설치** — 모든 프로젝트에서 사용 (work-tracker처럼 프로젝트에 종속되지 않는 스킬에 권장)
 
 ```bash
-mkdir -p ~/.claude/skills
+mkdir -p ~/.claude/skills ~/.claude/commands
 npx degit jayounglee92/my-claude-skill/work-tracker ~/.claude/skills/work-tracker --force
+echo "출근 기록. 오늘의 Git HEAD를 스냅샷하고 세션 마커를 설정해줘." > ~/.claude/commands/clockin.md
+echo "퇴근 기록. 오늘 하루 세션 컨텍스트를 수집하고 일간 요약을 생성해줘." > ~/.claude/commands/clockout.md
+echo "월간 보고서를 생성해줘." > ~/.claude/commands/recap.md
 ```
+
+> Claude Code를 재시작하면 `/clockin`, `/clockout`, `/recap`이 자동완성 목록에 나타납니다.
 
 **프로젝트별 설치** — 현재 프로젝트에서만 사용
 
