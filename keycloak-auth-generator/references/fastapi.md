@@ -2,21 +2,25 @@
 
 ## Overview
 
-FastAPI + `python-jose` (JWT verification) or `fastapi-keycloak` library combination.
+FastAPI + `PyJWT` (JWT verification) or `fastapi-keycloak` library combination.
 FastAPI acts as an API server that **verifies** JWT tokens received from the frontend.
 
+> **⚠️ Do NOT use `python-jose`.** It has been abandoned since 2021 and causes import errors on Python 3.10+. FastAPI official docs have also migrated to PyJWT.
+
 **Two approaches:**
-1. **Pure JWT verification** (recommended) — `python-jose` + `PyJWKClient` for direct verification. Minimal dependencies.
+1. **PyJWT** (recommended) — Lightweight, actively maintained. FastAPI's official recommendation.
 2. **fastapi-keycloak library** — Includes user management and Swagger OIDC integration. Feature-rich.
 
 Default to Option 1. If the user wants admin features or Swagger OIDC, use Option 2.
 
 ## Required Packages
 
-### Option 1 (Pure JWT)
+### Option 1 (PyJWT — recommended)
 ```bash
-pip install fastapi uvicorn python-jose[cryptography] httpx
+pip install fastapi uvicorn "pyjwt[crypto]" httpx
 ```
+
+> `pyjwt[crypto]` includes the `cryptography` dependency needed for RS256 verification.
 
 ### Option 2 (fastapi-keycloak)
 ```bash
@@ -32,7 +36,7 @@ KEYCLOAK_CLIENT_ID=my-api
 KEYCLOAK_CLIENT_SECRET=your-client-secret
 ```
 
-## Option 1: Pure JWT Verification (recommended)
+## Option 1: PyJWT (recommended)
 
 ### Generated Files
 
@@ -72,10 +76,10 @@ settings = Settings()
 ```python
 from typing import Annotated
 
+import jwt
+from jwt import PyJWKClient
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2AuthorizationCodeBearer
-from jose import JWTError, jwt
-from jwt import PyJWKClient
 
 from app.core.config import settings
 
@@ -84,7 +88,7 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
     tokenUrl=settings.keycloak_token_url,
 )
 
-# JWKS client (public key caching)
+# JWKS client (caches public keys automatically)
 jwks_client = PyJWKClient(settings.keycloak_jwks_url)
 
 
@@ -109,11 +113,11 @@ async def get_current_user(
             options={"verify_exp": True},
         )
         return payload
-    except JWTError:
+    except jwt.exceptions.InvalidTokenError:
         raise credentials_exception
 
 
-async def require_role(required_roles: list[str]):
+def require_role(required_roles: list[str]):
     """RBAC dependency factory"""
 
     async def _check_roles(
@@ -139,7 +143,6 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.auth import get_current_user, require_role
-from app.core.config import settings
 
 app = FastAPI(title="My API", version="1.0.0")
 
@@ -238,7 +241,7 @@ async def admin(
 ## Troubleshooting
 
 **"Could not deserialize key data" error**
-→ Verify `python-jose[cryptography]` is installed (`pip install python-jose[cryptography]`)
+→ Verify `pyjwt[crypto]` is installed (`pip install "pyjwt[crypto]"`)
 
 **"audience doesn't match" error**
 → Verify Keycloak Client audience mapping. Client Scopes → dedicated scope → Mappers → add Audience
@@ -248,3 +251,6 @@ async def admin(
 
 **CORS error**
 → Add frontend origin to `CORSMiddleware`
+
+**ImportError with `python-jose`**
+→ Do NOT use `python-jose`. It is abandoned and broken on Python 3.10+. Switch to `PyJWT`.

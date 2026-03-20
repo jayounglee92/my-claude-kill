@@ -1,9 +1,39 @@
-# Next.js + Keycloak (Auth.js v5)
+# Next.js + Keycloak
 
 ## Overview
 
-Next.js App Router + Auth.js v5 (NextAuth) + Keycloak Provider combination.
+Next.js App Router + Keycloak SSO integration.
 Server-side auth, so Client authentication must be ON (confidential client).
+
+**Two auth library options:**
+
+1. **Auth.js v5 (next-auth)** — Mature, well-documented Keycloak integration. Still works and widely used.
+   - Install: `npm install next-auth@beta` (v5 is still under beta tag on npm)
+   - Auth.js has been merged into the Better Auth project, but the `next-auth` package continues to work.
+
+2. **Better Auth** (recommended for new projects) — The Auth.js team officially recommends Better Auth for new projects.
+   - Install: `npm install better-auth`
+   - Keycloak support via `genericOAuth` plugin with built-in `keycloak()` config.
+   - ⚠️ **Caveat**: Keycloak + Next.js App Router integration with Better Auth is still relatively new. Full examples for token refresh, federated logout, and RBAC are limited as of early 2026.
+
+**Default recommendation:**
+- **Existing projects** already using next-auth → Stay with Auth.js v5 (Option 1)
+- **New projects** → Ask the user which they prefer. If unsure, Auth.js v5 is the safer choice for Keycloak specifically due to mature documentation and community examples.
+
+When the user selects Next.js, ask:
+
+```
+Which auth library would you like to use?
+
+1. Auth.js (next-auth) — Mature Keycloak support, extensive docs (recommended if unsure)
+2. Better Auth — Officially recommended for new projects, but Keycloak integration is newer
+
+Both work with Keycloak. Auth.js has more battle-tested Keycloak examples.
+```
+
+---
+
+## Option 1: Auth.js v5 (next-auth)
 
 ## Required Packages
 
@@ -11,7 +41,9 @@ Server-side auth, so Client authentication must be ON (confidential client).
 npm install next-auth@beta
 ```
 
-> Auth.js v5 is installed as `next-auth@beta`. After stable release, use `next-auth`.
+> Auth.js v5 is still published under the `beta` tag on npm as of early 2026. The API is stable and widely used in production. Install with `next-auth@beta` until the stable tag is released. If a stable version is already available when you read this, use `npm install next-auth` instead.
+
+> **Next.js 16+ users:** The generated file is `proxy.ts` (not `middleware.ts`). If using Next.js 15 or earlier, rename it to `middleware.ts`.
 
 ## Environment Variables (.env.local)
 
@@ -134,7 +166,9 @@ import { handlers } from "@/auth";
 export const { GET, POST } = handlers;
 ```
 
-### 3. `src/middleware.ts` — Auth Middleware
+### 3. `src/proxy.ts` — Proxy (replaces middleware.ts since Next.js 16)
+
+> **Note:** As of Next.js 16, `middleware.ts` has been renamed to `proxy.ts` and the exported function is `proxy` instead of `middleware`. If using Next.js 15 or earlier, rename the file back to `middleware.ts` and the function to `middleware`.
 
 ```typescript
 import { auth } from "@/auth";
@@ -307,9 +341,10 @@ declare module "next-auth" {
 }
 ```
 
-Check roles in middleware:
+Check roles in proxy (or middleware for Next.js 15):
 
 ```typescript
+// In proxy.ts (or middleware.ts for Next.js 15)
 // Specific path requires role
 if (req.nextUrl.pathname.startsWith("/admin")) {
   const session = req.auth;
@@ -343,3 +378,142 @@ if (req.nextUrl.pathname.startsWith("/admin")) {
 
 **AUTH_SECRET not set**
 → Run `npx auth secret`, then add to `.env.local`
+
+---
+
+## Option 2: Better Auth
+
+### Required Packages
+
+```bash
+npm install better-auth
+```
+
+### Environment Variables (.env.local)
+
+```env
+KEYCLOAK_URL=https://auth.company.com
+KEYCLOAK_REALM=my-realm
+KEYCLOAK_CLIENT_ID=my-app
+KEYCLOAK_CLIENT_SECRET=your-client-secret
+
+BETTER_AUTH_SECRET=your-secret-here
+BETTER_AUTH_URL=http://localhost:3000
+```
+
+### Generated Files
+
+#### 1. `src/lib/auth.ts` — Better Auth Config
+
+```typescript
+import { betterAuth } from "better-auth";
+import { genericOAuth, keycloak } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
+  plugins: [
+    genericOAuth({
+      config: [
+        keycloak({
+          clientId: process.env.KEYCLOAK_CLIENT_ID!,
+          clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+          issuer: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}`,
+        }),
+      ],
+    }),
+  ],
+});
+```
+
+#### 2. `src/lib/auth-client.ts` — Client-side Auth
+
+```typescript
+import { createAuthClient } from "better-auth/react";
+import { genericOAuthClient } from "better-auth/client/plugins";
+
+export const { signIn, signOut, useSession, getSession } = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  plugins: [genericOAuthClient()],
+});
+```
+
+#### 3. `src/app/api/auth/[...all]/route.ts` — API Route
+
+```typescript
+import { toNextJsHandler } from "better-auth/next-js";
+import { auth } from "@/lib/auth";
+
+export const { GET, POST } = toNextJsHandler(auth);
+```
+
+#### 4. `src/proxy.ts` — Proxy (Next.js 16+)
+
+```typescript
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
+export async function proxy(request: NextRequest) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const isOnLoginPage = request.nextUrl.pathname === "/login";
+  const publicPaths = ["/", "/about", "/api/auth"];
+  const isPublicPath = publicPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  if (!session && !isPublicPath && !isOnLoginPage) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (session && isOnLoginPage) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};
+```
+
+#### 5. Login/Dashboard Pages
+
+Login and dashboard pages follow the same UI pattern as Option 1, but use Better Auth's `signIn` and `signOut` from `@/lib/auth-client` instead of `@/auth`.
+
+```tsx
+// src/app/login/page.tsx
+"use client";
+import { signIn } from "@/lib/auth-client";
+
+export default function LoginPage() {
+  return (
+    <button onClick={() => signIn.social({ provider: "keycloak" })}>
+      Sign in with SSO
+    </button>
+  );
+}
+```
+
+```tsx
+// src/app/dashboard/page.tsx
+"use client";
+import { useSession, signOut } from "@/lib/auth-client";
+
+export default function DashboardPage() {
+  const { data: session } = useSession();
+  // ... render user info and sign out button
+}
+```
+
+### Important Notes for Better Auth + Keycloak
+
+- Better Auth's Keycloak integration uses the `genericOAuth` plugin with a built-in `keycloak()` helper.
+- Token refresh, federated logout, and RBAC patterns are still evolving. Check Better Auth docs for the latest.
+- If you need advanced Keycloak features (federated logout, token introspection, role mapping), Auth.js v5 currently has more documented patterns.
+- Better Auth requires a database by default. For stateless JWT sessions (no database), Auth.js v5 may be a better fit.

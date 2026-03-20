@@ -5,6 +5,8 @@
 Nuxt 3 + `sidebase/nuxt-auth` (Auth.js-based) or direct `keycloak-js` usage.
 Nuxt uses SSR, so both server and client sides must be considered.
 
+> **⚠️ Note on Auth.js → Better Auth migration:** Auth.js has joined the Better Auth project. There is an open issue on sidebase/nuxt-auth to migrate to Better Auth (#1058). As of early 2026, sidebase/nuxt-auth still works and is maintained, but the long-term direction is uncertain. If starting a brand new Nuxt project and comfortable with early-stage integration, consider using Better Auth directly with Nuxt (via `better-auth` npm package). Otherwise, sidebase/nuxt-auth remains the most battle-tested option for Keycloak + Nuxt.
+
 **Two approaches:**
 1. `@sidebase/nuxt-auth` — Integrates Auth.js into Nuxt. Server-side session management. (recommended)
 2. `keycloak-js` direct usage — Client-side only. Suitable for SPA mode.

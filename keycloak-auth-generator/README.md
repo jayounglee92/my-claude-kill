@@ -9,7 +9,7 @@
 | **Next.js** | Auth.js v5 + Keycloak Provider | shadcn/ui, MUI, Ant Design, Tailwind |
 | **Vue 3** | @josempgon/vue-keycloak | Vuetify, PrimeVue, Element Plus, Naive UI |
 | **Nuxt 3** | sidebase/nuxt-auth | Nuxt UI, Vuetify, PrimeVue |
-| **FastAPI** | python-jose (JWT) | Swagger UI, Jinja2+Bootstrap |
+| **FastAPI** | PyJWT (JWT) | Swagger UI, Jinja2+Bootstrap |
 | **Django** | mozilla-django-oidc | crispy-forms+Bootstrap, Tailwind |
 | **Flask** | Authlib | Bootstrap 5, Tailwind |
 | **Thymeleaf** | Spring Security OAuth2 Client | Bootstrap 5, Tailwind |
@@ -103,7 +103,7 @@ keycloak-auth-generator/
     ├── nextjs.md               ← Next.js + Auth.js v5
     ├── vue3.md                 ← Vue 3 + vue-keycloak
     ├── nuxt3.md                ← Nuxt 3 + sidebase/nuxt-auth
-    ├── fastapi.md              ← FastAPI + python-jose
+    ├── fastapi.md              ← FastAPI + PyJWT
     ├── django.md               ← Django + mozilla-django-oidc
     ├── flask.md                ← Flask + Authlib
     └── thymeleaf.md            ← Spring Boot + Spring Security
