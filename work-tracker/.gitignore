@@ -1,0 +1,10 @@
+# Work logs (개인 데이터 — 레포에 포함하지 않음)
+*.yaml
+clockin_sessions.txt
+
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
