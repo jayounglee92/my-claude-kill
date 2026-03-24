@@ -325,15 +325,25 @@ Run archive logic per `file_management.archive_after_months`. See `references/fi
 
 ### Step 5: Confirm to user (in Korean)
 
-```text
-✅ 출근 기록됨 (09:15)
-📂 추적 중인 레포: my-service-a, my-service-b
-📝 오늘 계획: 로그인 페이지 작업 예정
+Render a visually distinct banner using box-drawing characters. Fill in actual values (time, repo names, planned tasks).
 
-하루 동안 자유롭게 작업하세요.
-터미널 여러 개 열고 닫아도 전부 추적됩니다.
-퇴근할 때 /clockout 해주세요!
+```text
+╭──────────────────────────────────────────────╮
+│   WORK TRACKER  ·  출근                      │
+╰──────────────────────────────────────────────╯
+
+  출근   09:15
+  레포   my-service-a  ·  my-service-b
+  계획   로그인 페이지 작업 예정
+
+──────────────────────────────────────────────
+  자유롭게 작업하세요.
+  터미널을 열고 닫아도 모든 세션이 추적됩니다.
+  퇴근할 때 /clockout
+──────────────────────────────────────────────
 ```
+
+If no planned tasks, omit the "계획" line.
 
 ---
 
@@ -345,6 +355,27 @@ Read clockin_time and git_snapshots from `~/.claude/work-logs/today.yaml`.
 If today.yaml is missing (clockout without clockin), assume clockin_time = today 00:00.
 
 ### Step 2: Auto-collect context
+
+Before collecting, show an opening banner:
+
+```text
+╭──────────────────────────────────────────────╮
+│   WORK TRACKER  ·  퇴근                      │
+╰──────────────────────────────────────────────╯
+
+  09:15 → 18:30   (9시간 15분)
+
+  컨텍스트 수집 중...
+```
+
+Then report each source result on its own line as it completes (use ✓ for success, ✗ for skipped/failed):
+
+```text
+  ✓  Session JSONL    3개 세션
+  ✓  Git diff         커밋 9건  ·  my-service-a, my-service-b
+  ✓  Auto Memory      변경 3건
+  ✗  MR/Branch        glab 미설치, 건너뜀
+```
 
 Collect from 4 sources in order. Graceful fallback if any source fails.
 
@@ -445,16 +476,32 @@ HH:MM ~ HH:MM (N시간 M분)
 
 ### Step 4: Save
 
+If `daily_storage` is fully configured, save automatically without prompting. Always save locally. Show the result as a compact save report:
+
 ```text
-📤 오늘의 업무 요약을 어디에 저장할까요?
-  1. 로컬 (기본) → ~/.claude/work-logs/YYYY/MM/YYYY-MM-DD.md
+──────────────────────────────────────────────
+  일간 요약 저장 완료
+
+  ✓  로컬      ~/.claude/work-logs/2025/03/2025-03-20.md
+  ✓  Notion    "2025-03-20 업무 요약" 페이지 생성됨
+  ✗  Obsidian  설정 없음, 건너뜀
+
+──────────────────────────────────────────────
+  내일 또 /clockin 해주세요!
+──────────────────────────────────────────────
+```
+
+If no external integrations are configured, omit those lines entirely. If the user has not fully configured storage destinations, ask:
+
+```text
+  저장할 위치를 선택해주세요.
+  1. 로컬만  →  ~/.claude/work-logs/YYYY/MM/YYYY-MM-DD.md
   2. Notion
   3. Obsidian
   4. Confluence
   5. 모두 (로컬 + 설정된 외부)
+  >
 ```
-
-If default configured, save automatically and show result. Always save locally.
 
 ### Step 5: Update CLAUDE.md (optional)
 
