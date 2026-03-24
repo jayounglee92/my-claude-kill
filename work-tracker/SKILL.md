@@ -329,17 +329,17 @@ Render a visually distinct banner using box-drawing characters. Fill in actual v
 
 ```text
 ╭──────────────────────────────────────────────╮
-│   WORK TRACKER  ·  출근                      │
+│  🌅  WORK TRACKER  ·  출근                   │
 ╰──────────────────────────────────────────────╯
 
-  출근   09:15
-  레포   my-service-a  ·  my-service-b
-  계획   로그인 페이지 작업 예정
+  ⏰  출근   09:15
+  📂  레포   my-service-a  ·  my-service-b
+  📝  계획   로그인 페이지 작업 예정
 
 ──────────────────────────────────────────────
-  자유롭게 작업하세요.
+  오늘도 화이팅! 🙌
   터미널을 열고 닫아도 모든 세션이 추적됩니다.
-  퇴근할 때 /clockout
+  퇴근할 때 /clockout 🚪
 ──────────────────────────────────────────────
 ```
 
@@ -360,12 +360,12 @@ Before collecting, show an opening banner:
 
 ```text
 ╭──────────────────────────────────────────────╮
-│   WORK TRACKER  ·  퇴근                      │
+│  🌙  WORK TRACKER  ·  퇴근                   │
 ╰──────────────────────────────────────────────╯
 
-  09:15 → 18:30   (9시간 15분)
+  🕐  09:15 → 18:30   (9시간 15분)
 
-  컨텍스트 수집 중...
+  🔍  컨텍스트 수집 중...
 ```
 
 Then report each source result on its own line as it completes (use ✓ for success, ✗ for skipped/failed):
@@ -480,14 +480,14 @@ If `daily_storage` is fully configured, save automatically without prompting. Al
 
 ```text
 ──────────────────────────────────────────────
-  일간 요약 저장 완료
+  📋  일간 요약 저장 완료
 
-  ✓  로컬      ~/.claude/work-logs/2025/03/2025-03-20.md
-  ✓  Notion    "2025-03-20 업무 요약" 페이지 생성됨
-  ✗  Obsidian  설정 없음, 건너뜀
+  ✓  💾  로컬      ~/.claude/work-logs/2025/03/2025-03-20.md
+  ✓  🔴  Notion    "2025-03-20 업무 요약" 페이지 생성됨
+  ✗  🟣  Obsidian  설정 없음, 건너뜀
 
 ──────────────────────────────────────────────
-  내일 또 /clockin 해주세요!
+  수고했어요! 😊  내일 또 /clockin 해주세요 🌟
 ──────────────────────────────────────────────
 ```
 
