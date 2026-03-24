@@ -11,24 +11,26 @@ Automatically capture daily work context and generate monthly reports.
 
 ## Command routing
 
-| Command | Triggers | Action |
-|---------|----------|--------|
-| `/clockin` | "출근", "clockin", "출근 찍어" | Record clock-in time, snapshot Git HEADs, set session marker |
-| `/clockout` | "퇴근", "clockout", "퇴근할게" | Auto-collect day's context → generate daily summary → save |
-| `/recap` | "월간 보고서", "저번 달 정리", "이번 달 업무" | Aggregate daily summaries → user selects tasks → generate final report → export |
-| config update | "work-tracker 설정 변경", "노션 말고 옵시디언으로", "레포 추가해줘", "저장 위치 바꿔줘" | Parse intent → update config file → confirm change |
+| Command       | Triggers                                                                                | Action                                                                          |
+| ------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `/clockin`    | "출근", "clockin", "출근 찍어"                                                          | Record clock-in time, snapshot Git HEADs, set session marker                    |
+| `/clockout`   | "퇴근", "clockout", "퇴근할게"                                                          | Auto-collect day's context → generate daily summary → save                      |
+| `/recap`      | "월간 보고서", "저번 달 정리", "이번 달 업무"                                           | Aggregate daily summaries → user selects tasks → generate final report → export |
+| config update | "work-tracker 설정 변경", "노션 말고 옵시디언으로", "레포 추가해줘", "저장 위치 바꿔줘" | Parse intent → update config file → confirm change                              |
 
 When the user's message matches any trigger above, execute the corresponding workflow.
 
 ### Config update workflow
 
 Triggered by natural language requests to change settings. Examples:
+
 - "노션 말고 이제 옵시디언으로 쓸거야"
 - "레포 하나 더 추가해줘"
 - "저장 위치 ~/Dropbox/work-logs 로 바꿔줘"
 - "외부 전송 다 꺼줘"
 
 **Steps:**
+
 1. Load `~/.claude/work-tracker-config.yaml`
 2. Parse the user's intent and identify which field(s) to change
 3. Show a before/after diff of the change and ask for confirmation:
@@ -78,6 +80,7 @@ Ask the user:
 ```
 
 After the user enters the path:
+
 1. Expand `~` to the absolute home path and verify the directory exists. If it does not exist, tell the user and ask again.
 2. Scan the directory for subdirectories that contain a `.git` folder (depth 1 only — do not recurse into nested repos).
 3. Present the found repos as a **numbered multi-select list**:
@@ -159,6 +162,7 @@ Explain to the user first:
 For each selected integration, ask the required settings:
 
 **Notion (option 1):**
+
 ```
 Notion 데이터베이스 ID를 입력해주세요.
 (Notion 페이지 URL 끝의 32자리 문자열)
@@ -166,6 +170,7 @@ Notion 데이터베이스 ID를 입력해주세요.
 ```
 
 **Obsidian (option 2):**
+
 ```
 Obsidian 볼트 경로를 입력해주세요. (예: ~/Documents/MyVault)
 > Vault 경로:
@@ -175,6 +180,7 @@ Obsidian 볼트 경로를 입력해주세요. (예: ~/Documents/MyVault)
 ```
 
 **Confluence (option 3):**
+
 ```
 Confluence Base URL을 입력해주세요. (예: https://yourcompany.atlassian.net)
 > Base URL:
@@ -187,6 +193,7 @@ Confluence Base URL을 입력해주세요. (예: https://yourcompany.atlassian.n
 ```
 
 **기타 — custom path (option 4):**
+
 ```
 자동 저장할 폴더 경로를 입력해주세요. (절대경로 또는 ~ 사용 가능)
 > 경로:
@@ -206,8 +213,8 @@ Write `~/.claude/work-tracker-config.yaml` with the collected values:
 ```yaml
 # ~/.claude/work-tracker-config.yaml
 repositories:
-  - path: ~/projects/my-service-a    # filled from user selection
-    service_name: 서비스A              # filled from user input
+  - path: ~/projects/my-service-a # filled from user selection
+    service_name: 서비스A # filled from user input
   - path: ~/projects/my-service-b
     service_name: 서비스B
 
@@ -329,7 +336,7 @@ Render a visually distinct banner using box-drawing characters. Fill in actual v
 
 ```text
 ╭──────────────────────────────────────────────╮
-│  🌅  WORK TRACKER  ·  출근                   │
+│  🌅  WORK TRACKER  ·  출근                     │
 ╰──────────────────────────────────────────────╯
 
   ⏰  출근   09:15
@@ -419,22 +426,24 @@ Synthesize all context into this markdown format. Every entry must include times
 # YYYY-MM-DD (요일) 업무 요약
 
 ## 근무 시간
+
 HH:MM ~ HH:MM (N시간 M분)
 
 ## 타임라인
 
-| 시간 | 서비스 | 작업 내용 |
-|------|--------|---------|
-| 09:15 ~ 10:42 | [서비스A] | 로그인 페이지 레이아웃 구현 |
-| 10:42 ~ 11:30 | [서비스A] | 소셜 로그인 API 연동 |
-| 11:30 ~ 12:00 | — | 코드리뷰: my-service-b MR !142 |
-| 13:00 ~ 14:20 | [서비스B] | 검색 필터 버그 수정 |
-| 14:20 ~ 16:45 | [서비스A] | 폼 유효성 검증 및 에러 핸들링 |
-| 16:45 ~ 18:00 | [서비스A] | Claude와 SSR 이슈 디버깅 |
+| 시간          | 서비스    | 작업 내용                      |
+| ------------- | --------- | ------------------------------ |
+| 09:15 ~ 10:42 | [서비스A] | 로그인 페이지 레이아웃 구현    |
+| 10:42 ~ 11:30 | [서비스A] | 소셜 로그인 API 연동           |
+| 11:30 ~ 12:00 | —         | 코드리뷰: my-service-b MR !142 |
+| 13:00 ~ 14:20 | [서비스B] | 검색 필터 버그 수정            |
+| 14:20 ~ 16:45 | [서비스A] | 폼 유효성 검증 및 에러 핸들링  |
+| 16:45 ~ 18:00 | [서비스A] | Claude와 SSR 이슈 디버깅       |
 
 ## 오늘 한 일
 
 ### [서비스A] my-service-a (09:15 ~ 16:45)
+
 - 로그인 페이지 리뉴얼 구현
   - 09:15 ~ 10:42 | 레이아웃 및 반응형 대응
   - 10:42 ~ 11:30 | 소셜 로그인 API 연동
@@ -445,14 +454,17 @@ HH:MM ~ HH:MM (N시간 M분)
   - SSR 환경에서 dynamic import 적용 방법 논의
 
 ### [서비스B] my-service-b (13:00 ~ 14:20)
+
 - 검색 필터 버그 수정
   - 13:00 ~ 14:20 | flexbox gap → margin으로 변경
   - 커밋 2건, +12 / -8 lines
 
 ### 코드 외 업무
+
 - 11:30 ~ 12:00 | 코드리뷰: my-service-b MR !142
 
 ## 내일 할 일 / 미해결
+
 - (unresolved issues from sessions, TODOs)
 ```
 
@@ -506,6 +518,7 @@ If `auto_update_claude_md: true`, update each repo's CLAUDE.md:
 
 ```markdown
 ## Recent work (auto-updated by work-tracker)
+
 - YYYY-MM-DD: one-line work summary
 - YYYY-MM-DD: one-line work summary
 ```
@@ -524,14 +537,14 @@ Record clockout_time. File preserved until next clockin.
 
 `/recap` supports multiple argument formats for flexibility:
 
-| Input | Interpretation |
-| --- | --- |
-| `/recap` | Previous month (default). In March → February |
-| `/recap 2025-02` | Specific month: February 2025 |
-| `/recap 이번달` or `/recap this` | Current month (so far) |
-| `/recap 2025-01 2025-03` | Range: January through March 2025 |
-| `/recap q1` or `/recap 1분기` | Q1 of current year (Jan–Mar) |
-| `/recap 2025-h1` or `/recap 상반기` | First half of current year (Jan–Jun) |
+| Input                               | Interpretation                                |
+| ----------------------------------- | --------------------------------------------- |
+| `/recap`                            | Previous month (default). In March → February |
+| `/recap 2025-02`                    | Specific month: February 2025                 |
+| `/recap 이번달` or `/recap this`    | Current month (so far)                        |
+| `/recap 2025-01 2025-03`            | Range: January through March 2025             |
+| `/recap q1` or `/recap 1분기`       | Q1 of current year (Jan–Mar)                  |
+| `/recap 2025-h1` or `/recap 상반기` | First half of current year (Jan–Jun)          |
 
 **Parsing rules:**
 
@@ -593,11 +606,12 @@ Show numbered task list. User picks which to include:
 1. Neither → default 4-column table (see `references/report_format.md`)
 
 **Default format:**
+
 ```markdown
 # YYYY년 MM월 업무 피드백
 
-| 목표 | 핵심결과 | 잘한 점 | 부족한 점 및 보완계획 |
-|------|---------|--------|-------------------|
+| 목표                 | 핵심결과         | 잘한 점        | 부족한 점 및 보완계획 |
+| -------------------- | ---------------- | -------------- | --------------------- |
 | [서비스명] 상위 목표 | 구체적 구현 내용 | 성과/좋은 결정 | 미해결 이슈/다음 액션 |
 ```
 
@@ -708,8 +722,8 @@ Before sending to Notion, Confluence, Obsidian, etc.:
 
 ## Reference files
 
-| File | When to read |
-| --- | --- |
-| `references/report_format.md` | When generating default-format report in `/recap` |
-| `references/file_management.md` | When running auto file cleanup in `/clockin` |
-| `templates/default.md` | When a report template is needed |
+| File                            | When to read                                      |
+| ------------------------------- | ------------------------------------------------- |
+| `references/report_format.md`   | When generating default-format report in `/recap` |
+| `references/file_management.md` | When running auto file cleanup in `/clockin`      |
+| `templates/default.md`          | When a report template is needed                  |

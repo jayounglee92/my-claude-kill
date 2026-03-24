@@ -77,11 +77,11 @@
 
 일간 요약은 텍스트 파일(2~3KB/일)이라 용량 부담이 거의 없다.
 
-| 기간 | 파일 수 | 용량 |
-|------|--------|------|
-| 1개월 | ~22개 | ~60KB |
-| 1년 | ~260개 | ~720KB |
-| 5년 | ~1,300개 | ~3.5MB |
+| 기간  | 파일 수  | 용량   |
+| ----- | -------- | ------ |
+| 1개월 | ~22개    | ~60KB  |
+| 1년   | ~260개   | ~720KB |
+| 5년   | ~1,300개 | ~3.5MB |
 
 5년을 써도 사진 한 장보다 작다.
 
@@ -96,9 +96,9 @@
 ```yaml
 # config에서 정책 설정
 file_management:
-  archive_after_months: 2        # 2개월 지난 일간 요약 자동 archive
+  archive_after_months: 2 # 2개월 지난 일간 요약 자동 archive
   delete_archive_after_months: 0 # 0 = 삭제 안 함
-  keep_monthly_reports: true     # 최종 보고서는 항상 보관
+  keep_monthly_reports: true # 최종 보고서는 항상 보관
 ```
 
 ### 개선 여지
@@ -121,17 +121,18 @@ file_management:
 
 ### 수집 단계별 필터링
 
-| 단계 | 필터링 내용 |
-|------|-----------|
-| Git diff | 커밋 메시지만 수집, 코드 diff 전문 X. `.env*` 관련 커밋은 마스킹 |
-| Session JSONL | 코드 블록 제거, 시크릿 포함 메시지 스킵, Bash 명령어 중 민감 명령 마스킹 |
-| 일간 요약 저장 | 파일 경로를 레포 기준 상대경로로 변환, 홈 디렉토리 절대경로 제거 |
-| 외부 전송 | 전송 전 최종 스캔, 내부 IP/도메인 마스킹, 사용자 확인 요청 |
-| 로컬 저장 | 파일 권한 `chmod 600` (소유자만 읽기) |
+| 단계           | 필터링 내용                                                              |
+| -------------- | ------------------------------------------------------------------------ |
+| Git diff       | 커밋 메시지만 수집, 코드 diff 전문 X. `.env*` 관련 커밋은 마스킹         |
+| Session JSONL  | 코드 블록 제거, 시크릿 포함 메시지 스킵, Bash 명령어 중 민감 명령 마스킹 |
+| 일간 요약 저장 | 파일 경로를 레포 기준 상대경로로 변환, 홈 디렉토리 절대경로 제거         |
+| 외부 전송      | 전송 전 최종 스캔, 내부 IP/도메인 마스킹, 사용자 확인 요청               |
+| 로컬 저장      | 파일 권한 `chmod 600` (소유자만 읽기)                                    |
 
 ### `collect_sessions.py`의 내장 필터
 
 스크립트에 정규식 기반 필터가 내장되어 있다:
+
 - `contains_secret(text)` — 시크릿 패턴 감지
 - `sanitize_text(text)` — 민감 정보 마스킹, 코드 블록 제거
 - `sanitize_filepath(path)` — 민감 파일 마스킹, 절대경로→상대경로 변환
@@ -198,7 +199,7 @@ curl -fsSL https://raw.githubusercontent.com/ioslife/my-claude-skill/main/instal
 
 ---
 
-#### [3/3] 외부 자동 전송 (선택)
+#### [3/3] 외부 자동 전송 (권장)
 
 `/clockout` 시 일간 요약을 자동으로 보낼 외부 서비스를 선택한다.
 로컬 저장은 항상 기본으로 포함되며, 외부 전송은 선택 사항이다.
@@ -237,22 +238,24 @@ curl -fsSL https://raw.githubusercontent.com/ioslife/my-claude-skill/main/instal
 ```
 
 > **설정 변경**: 나중에 설정을 바꾸고 싶으면 그냥 말로 하면 된다.
+>
 > ```
 > 노션 말고 이제 옵시디언으로 쓸거야
 > 레포 하나 더 추가해줘
 > 저장 위치 ~/Dropbox/work-logs 로 바꿔줘
 > ```
+>
 > 변경 전후를 보여주고 확인을 받은 뒤 `~/.claude/work-tracker-config.yaml`을 자동으로 업데이트한다.
 
 ## 내보내기 대상
 
-| 대상 | 일간 요약 | 월간 보고서 | 연동 방식 |
-|------|---------|-----------|---------|
-| 로컬 | ✅ (기본) | ✅ | 파일 시스템 직접 쓰기 |
-| Notion | ✅ | ✅ | Notion MCP 서버 또는 API |
-| Obsidian | ✅ | ✅ | 볼트 경로에 .md 파일 저장 |
-| Confluence | ✅ | ✅ | Atlassian MCP 서버 또는 API |
-| 클립보드 | — | ✅ | 복사만 |
+| 대상       | 일간 요약 | 월간 보고서 | 연동 방식                   |
+| ---------- | --------- | ----------- | --------------------------- |
+| 로컬       | ✅ (기본) | ✅          | 파일 시스템 직접 쓰기       |
+| Notion     | ✅        | ✅          | Notion MCP 서버 또는 API    |
+| Obsidian   | ✅        | ✅          | 볼트 경로에 .md 파일 저장   |
+| Confluence | ✅        | ✅          | Atlassian MCP 서버 또는 API |
+| 클립보드   | —         | ✅          | 복사만                      |
 
 ## 디렉토리 구조
 
@@ -281,8 +284,8 @@ curl -fsSL https://raw.githubusercontent.com/ioslife/my-claude-skill/main/instal
 
 동일한 프레임워크로 직군별 커스터마이징 가능. config의 context_sources만 변경.
 
-| 직군 | 자동 소스 | 수동 소스 |
-|------|---------|---------|
-| 프론트엔드 개발자 | Session JSONL, Git, MR, Auto Memory | 미팅, 코드리뷰 |
-| 기획자/PM | Jira/Linear, Notion, Calendar (MCP) | 이해관계자 미팅 |
-| 디자이너 | Figma API, Notion (MCP) | 디자인 리뷰 |
+| 직군              | 자동 소스                           | 수동 소스       |
+| ----------------- | ----------------------------------- | --------------- |
+| 프론트엔드 개발자 | Session JSONL, Git, MR, Auto Memory | 미팅, 코드리뷰  |
+| 기획자/PM         | Jira/Linear, Notion, Calendar (MCP) | 이해관계자 미팅 |
+| 디자이너          | Figma API, Notion (MCP)             | 디자인 리뷰     |
