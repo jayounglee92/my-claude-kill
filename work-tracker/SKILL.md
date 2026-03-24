@@ -16,42 +16,200 @@ Automatically capture daily work context and generate monthly reports.
 | `/clockin` | "출근", "clockin", "출근 찍어" | Record clock-in time, snapshot Git HEADs, set session marker |
 | `/clockout` | "퇴근", "clockout", "퇴근할게" | Auto-collect day's context → generate daily summary → save |
 | `/recap` | "월간 보고서", "저번 달 정리", "이번 달 업무" | Aggregate daily summaries → user selects tasks → generate final report → export |
+| config update | "work-tracker 설정 변경", "노션 말고 옵시디언으로", "레포 추가해줘", "저장 위치 바꿔줘" | Parse intent → update config file → confirm change |
 
 When the user's message matches any trigger above, execute the corresponding workflow.
+
+### Config update workflow
+
+Triggered by natural language requests to change settings. Examples:
+- "노션 말고 이제 옵시디언으로 쓸거야"
+- "레포 하나 더 추가해줘"
+- "저장 위치 ~/Dropbox/work-logs 로 바꿔줘"
+- "외부 전송 다 꺼줘"
+
+**Steps:**
+1. Load `~/.claude/work-tracker-config.yaml`
+2. Parse the user's intent and identify which field(s) to change
+3. Show a before/after diff of the change and ask for confirmation:
+
+```
+다음과 같이 변경할게요.
+
+  변경 전: notion.enabled: true
+  변경 후: notion.enabled: false
+           obsidian.enabled: true
+           obsidian.vault_path: ~/Documents/MyVault
+
+확인하시겠어요? [y/n]
+```
+
+4. On confirmation, write the updated config
+5. If the new integration (e.g. Obsidian) needs additional info not yet in the config, ask for it before writing:
+
+```
+Obsidian 볼트 경로를 입력해주세요. (예: ~/Documents/MyVault)
+>
+```
+
+6. Confirm the result:
+
+```
+✅ 설정이 업데이트되었습니다.
+다음 /clockout 부터 Obsidian에 자동 저장됩니다.
+```
 
 ---
 
 ## Prerequisites: Config file
 
-On first run, if `~/.claude/work-tracker-config.yaml` does not exist, interactively ask the user to create it.
+On first run, if `~/.claude/work-tracker-config.yaml` does not exist, run the interactive setup below **step by step**. Ask each question, wait for the user's answer, then proceed to the next step.
 
-Required settings:
-1. Repository list (path + service name)
-2. Git author email
-3. Daily summary storage location (default: local)
+### Interactive setup flow
 
-After collecting all settings and writing the config file, automatically create Claude Code slash command files so that /clockin, /clockout, /recap appear in the `/` autocomplete menu:
+#### Step 1: Repository base directory
 
-```bash
-mkdir -p ~/.claude/commands
-echo "출근 기록. 오늘의 Git HEAD를 스냅샷하고 세션 마커를 설정해줘." > ~/.claude/commands/clockin.md
-echo "퇴근 기록. 오늘 하루 세션 컨텍스트를 수집하고 일간 요약을 생성해줘." > ~/.claude/commands/clockout.md
-echo "월간 보고서를 생성해줘." > ~/.claude/commands/recap.md
+Ask the user:
+
+```
+[1/2] 레포지토리가 모여 있는 상위 폴더 경로를 입력해주세요.
+(예: ~/projects, ~/repos, ~/workspace)
+>
 ```
 
-Then tell the user:
+After the user enters the path:
+1. Expand `~` to the absolute home path and verify the directory exists. If it does not exist, tell the user and ask again.
+2. Scan the directory for subdirectories that contain a `.git` folder (depth 1 only — do not recurse into nested repos).
+3. Present the found repos as a **numbered multi-select list**:
 
-```text
-슬래시 커맨드가 등록되었습니다. Claude Code를 재시작하면 /clockin, /clockout, /recap이 자동완성 목록에 나타납니다.
 ```
+다음 레포지토리를 발견했습니다. 추적할 레포를 선택해주세요.
+(번호를 쉼표로 구분, 예: 1,3,4 / 'all'로 전체 선택)
+
+  1. my-service-a
+  2. my-service-b
+  3. infra-scripts
+  4. design-system
+
+> 선택:
+```
+
+4. For each selected repo, ask its **service name** (Korean label used in reports):
+
+```
+'my-service-a'의 서비스 이름을 입력해주세요. (Enter = 폴더명 그대로 사용)
+>
+```
+
+5. If no `.git` subdirectories are found in the entered path, inform the user:
+
+```
+해당 경로에서 Git 레포지토리를 찾지 못했습니다.
+직접 레포 경로를 입력하시겠어요? (예: ~/projects/my-repo) [y/n]
+```
+
+If yes, accept a comma-separated list of individual repo paths and repeat step 4 for each.
+
+#### Step 2: Git author email (auto-detect, no user prompt)
+
+Run `git config --global user.email` silently and store the result as `git_author` in the config. Do not ask the user anything. If the command fails or returns empty, leave `git_author` as an empty string — the git log step will still work without it.
+
+#### Step 3: Daily summary storage location
+
+Ask the user:
+
+```
+[2/3] 일간 요약을 저장할 위치를 선택해주세요.
+
+  1. ~/.claude/work-logs/  (기본값, 권장)
+  2. 직접 입력
+
+> 선택 (Enter = 1번):
+```
+
+- If the user presses Enter or selects `1` → use `~/.claude/work-logs/`
+- If the user selects `2` → prompt:
+
+```
+저장 경로를 입력해주세요. (절대경로 또는 ~ 사용 가능)
+>
+```
+
+Validate that the path can be created (parent directory exists or can be made). If invalid, show an error and re-prompt.
+
+#### Step 3: External integrations (auto-send on clockout)
+
+Explain to the user first:
+
+```
+[3/3] 퇴근(clockout) 시 일간 요약을 자동으로 전송할 곳을 선택해주세요.
+선택한 곳에는 /clockout 할 때마다 자동으로 전송됩니다.
+로컬 저장은 항상 기본으로 포함됩니다.
+
+  1. Notion        — 지정한 데이터베이스에 페이지로 자동 생성
+  2. Obsidian      — 지정한 볼트 폴더에 마크다운 파일로 저장
+  3. Confluence    — 지정한 스페이스에 페이지로 자동 생성
+  4. 기타 (직접 입력) — 저장할 폴더 경로를 직접 지정
+  5. 없음          — 로컬만 저장
+
+(번호를 쉼표로 구분해 여러 곳 선택 가능, 예: 1,2 / Enter = 5번)
+> 선택:
+```
+
+For each selected integration, ask the required settings:
+
+**Notion (option 1):**
+```
+Notion 데이터베이스 ID를 입력해주세요.
+(Notion 페이지 URL 끝의 32자리 문자열)
+> Database ID:
+```
+
+**Obsidian (option 2):**
+```
+Obsidian 볼트 경로를 입력해주세요. (예: ~/Documents/MyVault)
+> Vault 경로:
+
+저장할 폴더명을 입력해주세요. (Enter = work-logs)
+> 폴더명:
+```
+
+**Confluence (option 3):**
+```
+Confluence Base URL을 입력해주세요. (예: https://yourcompany.atlassian.net)
+> Base URL:
+
+스페이스 키를 입력해주세요. (예: TEAM)
+> Space Key:
+
+부모 페이지 ID를 입력해주세요. (선택사항, Enter로 건너뜀)
+> Parent Page ID:
+```
+
+**기타 — custom path (option 4):**
+```
+자동 저장할 폴더 경로를 입력해주세요. (절대경로 또는 ~ 사용 가능)
+> 경로:
+```
+
+After collecting all integration settings, explain the auto-send behavior:
+
+```
+설정한 연동처에는 /clockout 시 일간 요약이 자동으로 전송됩니다.
+나중에 설정을 바꾸고 싶으면 ~/.claude/work-tracker-config.yaml 을 직접 수정하세요.
+```
+
+#### Step 4: Write config and finish setup
+
+Write `~/.claude/work-tracker-config.yaml` with the collected values:
 
 ```yaml
 # ~/.claude/work-tracker-config.yaml
 repositories:
-  - path: ~/projects/my-service-a    # example
-    service_name: 서비스A              # example — replace with actual name
-  - path: ~/projects/my-service-b    # example
-    service_name: 서비스B              # example — replace with actual name
+  - path: ~/projects/my-service-a    # filled from user selection
+    service_name: 서비스A              # filled from user input
+  - path: ~/projects/my-service-b
+    service_name: 서비스B
 
 git_author: "user@company.com"
 
@@ -84,6 +242,33 @@ file_management:
 
 auto_update_claude_md: true
 ```
+
+Then automatically create Claude Code slash command files so that /clockin, /clockout, /recap appear in the `/` autocomplete menu:
+
+```bash
+mkdir -p ~/.claude/commands
+echo "출근 기록. 오늘의 Git HEAD를 스냅샷하고 세션 마커를 설정해줘." > ~/.claude/commands/clockin.md
+echo "퇴근 기록. 오늘 하루 세션 컨텍스트를 수집하고 일간 요약을 생성해줘." > ~/.claude/commands/clockout.md
+echo "월간 보고서를 생성해줘." > ~/.claude/commands/recap.md
+```
+
+Finally, confirm to the user with a summary of all configured settings. List enabled integrations — omit any that were skipped:
+
+```
+✅ 설정이 완료되었습니다!
+
+📂 추적 레포: my-service-a (서비스A), my-service-b (서비스B)
+💾 로컬 저장: ~/.claude/work-logs/
+📤 자동 전송: Notion (database: xxxx), Obsidian (~/Documents/MyVault/work-logs)
+   → /clockout 할 때마다 위 경로에 자동으로 업로드됩니다.
+
+슬래시 커맨드가 등록되었습니다. Claude Code를 재시작하면
+/clockin, /clockout, /recap이 자동완성 목록에 나타납니다.
+
+출근할 준비가 되면 /clockin 을 입력해주세요!
+```
+
+If no external integration was selected, omit the "자동 전송" line entirely.
 
 If the config already exists, load it. If repos have changed, notify the user and suggest updating.
 
