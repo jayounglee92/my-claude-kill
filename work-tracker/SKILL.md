@@ -497,6 +497,33 @@ If `daily_storage` is fully configured, save automatically without prompting. Al
 **Page title format:** Use `YYYY-MM-DD 업무 요약(요일)` — e.g., `2026-03-27 업무 요약(금)`.
 Derive the Korean day abbreviation from the date: 월/화/수/목/금/토/일.
 
+**Page properties:** When creating each page, set the `Date` property to the clockout date (YYYY-MM-DD). This is the basis for monthly view filtering.
+
+**Monthly view auto-creation:**
+
+Before creating the page, check whether a view named `{N}월` (e.g., `4월`) already exists in the Work Tracker database:
+
+1. Call `GET https://api.notion.com/v1/databases/{database_id}` and inspect the `views` field.
+2. If a view named `{N}월` does **not** exist, create it:
+   ```json
+   POST https://api.notion.com/v1/databases/{database_id}/views
+   {
+     "name": "4월",
+     "type": "list",
+     "filter": {
+       "property": "Date",
+       "date": {
+         "on_or_after": "YYYY-MM-01",
+         "before": "YYYY-{MM+1}-01"
+       }
+     }
+   }
+   ```
+   Use `{N}월` as the view name (N = month number without leading zero, e.g., `4월` not `04월`).
+3. Then create the daily summary page as usual — it will automatically appear in the correct month's view.
+
+If the Notion API does not support view creation (older API versions), fall back to creating a **sub-page** named `{N}월` under the Work Tracker database parent, and save daily summaries as child pages inside it.
+
 Notion API does **not** auto-parse markdown. When sending to Notion, convert the summary into proper Notion block objects before calling the API:
 
 | Markdown element | Notion block type |
