@@ -494,7 +494,7 @@ If `daily_storage` is fully configured, save automatically without prompting. Al
 
 #### Notion export: markdown → Notion blocks
 
-**Page title format:** Use `YYYY-MM-DD 업무 요약(요일)` — e.g., `2026-03-27 업무 요약(금)`.
+**Page title format:** Use `YYYY-MM-DD(요일) 업무 요약` — e.g., `2026-03-27(금) 업무 요약`.
 Derive the Korean day abbreviation from the date: 월/화/수/목/금/토/일.
 
 **Page properties:** When creating each page, set the `날짜` property (date type) to the clockout date (YYYY-MM-DD). This is the basis for monthly view filtering.
