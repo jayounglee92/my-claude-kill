@@ -497,7 +497,7 @@ If `daily_storage` is fully configured, save automatically without prompting. Al
 **Page title format:** Use `YYYY-MM-DD 업무 요약(요일)` — e.g., `2026-03-27 업무 요약(금)`.
 Derive the Korean day abbreviation from the date: 월/화/수/목/금/토/일.
 
-**Page properties:** When creating each page, set the `Date` property to the clockout date (YYYY-MM-DD). This is the basis for monthly view filtering.
+**Page properties:** When creating each page, set the `날짜` property (date type) to the clockout date (YYYY-MM-DD). This is the basis for monthly view filtering.
 
 **Monthly view auto-creation:**
 
@@ -511,7 +511,7 @@ Before creating the page, check whether a view named `{N}월` (e.g., `4월`) alr
      "name": "4월",
      "type": "list",
      "filter": {
-       "property": "Date",
+       "property": "날짜",
        "date": {
          "on_or_after": "YYYY-MM-01",
          "before": "YYYY-{MM+1}-01"
