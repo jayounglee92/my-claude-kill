@@ -14,7 +14,7 @@ fi
 
 mkdir -p ~/.claude/skills
 
-npx degit jayounglee92/my-claude-skill/$SKILL ~/.claude/skills/$SKILL --force
+npx degit jayounglee92/my-claude-skill/packages/$SKILL ~/.claude/skills/$SKILL --force
 
 if [ "$SKILL" = "work-tracker" ]; then
   mkdir -p ~/.claude/commands
