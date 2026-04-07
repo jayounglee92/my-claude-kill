@@ -492,6 +492,15 @@ To customize the daily summary format, edit `templates/daily_summary.md` directl
 
 If `daily_storage` is fully configured, save automatically without prompting. Always save locally. Show the result as a compact save report:
 
+#### External integration priority
+
+When sending to external services (Notion, Obsidian, Confluence, etc.), always check `~/.claude/work-tracker-config.yaml` first:
+
+1. **Config has credentials/paths** (e.g., `notion.token`, `obsidian.vault_path`) → Use them directly. Call the API via `curl`/`fetch` or write files to the configured path. **Do NOT prompt for MCP plugin authentication.**
+2. **Config has the integration enabled but credentials are empty** → Then attempt MCP plugin authentication as a fallback.
+
+This rule applies to ALL external integrations in ALL commands (`/clockout`, `/recap`, config updates). Never ask the user to authenticate via MCP when working credentials already exist in the config file.
+
 #### Notion export: markdown → Notion blocks
 
 **Page title format:** Use `YYYY-MM-DD(요일) 업무 요약` — e.g., `2026-03-27(금) 업무 요약`.
