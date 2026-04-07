@@ -149,7 +149,13 @@ file_management:
 ### 1. 스킬 설치
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ioslife/my-claude-skill/main/install.sh | bash
+npx @jayounglee92/work-tracker
+```
+
+또는 curl로 설치:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jayounglee92/my-claude-skill/main/install.sh | bash -s work-tracker
 ```
 
 ### 2. 초기 설정 (최초 1회)

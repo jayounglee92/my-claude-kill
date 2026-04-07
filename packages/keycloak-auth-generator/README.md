@@ -27,15 +27,20 @@
 
 ## 설치 방법
 
+### Claude Code
+```bash
+npx @jayounglee92/keycloak-auth-generator
+```
+
+또는 curl로 설치:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jayounglee92/my-claude-skill/main/install.sh | bash -s keycloak-auth-generator
+```
+
 ### Claude.ai
 1. 이 레포의 ZIP 파일을 다운로드
 2. **Settings → Features → Skills**에서 업로드
-
-### Claude Code
-```bash
-# 프로젝트의 .claude/skills/ 디렉토리에 복사
-cp -r keycloak-auth-generator .claude/skills/
-```
 
 ## 사용법
 
