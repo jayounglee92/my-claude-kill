@@ -1,12 +1,32 @@
 {
   "name": "@jayounglee92/keycloak-auth-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "프레임워크별 Keycloak SSO 인증 코드 자동 생성 Claude Code 스킬",
-  "bin": { "keycloak-auth-generator": "./bin/install.js" },
-  "files": ["bin/", "SKILL.md", "README.md", "references/"],
-  "engines": { "node": ">=18" },
-  "keywords": ["claude", "claude-code", "skill", "keycloak", "sso", "auth"],
+  "bin": {
+    "keycloak-auth-generator": "./bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "SKILL.md",
+    "README.md",
+    "references/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "skill",
+    "keycloak",
+    "sso",
+    "auth"
+  ],
   "author": "jayounglee92",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/jayounglee92/my-claude-skill.git", "directory": "packages/keycloak-auth-generator" }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jayounglee92/my-claude-skill.git",
+    "directory": "packages/keycloak-auth-generator"
+  }
 }
