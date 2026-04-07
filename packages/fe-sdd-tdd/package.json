@@ -1,0 +1,12 @@
+{
+  "name": "@jayounglee92/fe-sdd-tdd",
+  "version": "1.0.0",
+  "description": "Spec 작성 → 테스트 → 구현 순서를 강제하는 프론트엔드 TDD 워크플로우 Claude Code 스킬",
+  "bin": { "fe-sdd-tdd": "./bin/install.js" },
+  "files": ["bin/", "SKILL.md", "README.md", "LICENSE", "references/"],
+  "engines": { "node": ">=18" },
+  "keywords": ["claude", "claude-code", "skill", "tdd", "frontend"],
+  "author": "jayounglee92",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/jayounglee92/my-claude-skill.git", "directory": "packages/fe-sdd-tdd" }
+}
