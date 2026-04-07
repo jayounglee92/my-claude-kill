@@ -1,12 +1,33 @@
 {
   "name": "@jayounglee92/work-tracker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "출퇴근 자동 기록 + 월간 업무 보고서 생성 Claude Code 스킬",
-  "bin": { "work-tracker": "./bin/install.js" },
-  "files": ["bin/", "SKILL.md", "README.md", "LICENSE", "templates/", "references/", "scripts/"],
-  "engines": { "node": ">=18" },
-  "keywords": ["claude", "claude-code", "skill", "work-tracker"],
+  "bin": {
+    "work-tracker": "./bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "SKILL.md",
+    "README.md",
+    "LICENSE",
+    "templates/",
+    "references/",
+    "scripts/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "skill",
+    "work-tracker"
+  ],
   "author": "jayounglee92",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/jayounglee92/my-claude-skill.git", "directory": "packages/work-tracker" }
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jayounglee92/my-claude-skill.git",
+    "directory": "packages/work-tracker"
+  }
 }
