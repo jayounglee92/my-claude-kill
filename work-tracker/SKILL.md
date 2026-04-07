@@ -1,6 +1,6 @@
 ---
 name: work-tracker
-description: "Daily clock-in/out tracking and monthly work report generator. Provides three commands: /clockin, /clockout, /recap. Automatically collects Claude Code session JSONL, Git diff, and Auto Memory to build daily summaries, then aggregates them into a 4-column table report (goals/results/strengths/improvements). Trigger this skill when the user mentions 'clockin', 'clockout', 'recap', 'monthly report', 'monthly summary', or any Korean equivalents like '출근', '퇴근', '월간 보고서', '업무 요약', '저번 달 정리', '업무 리스트', '피드백 작성'. Also trigger on natural language like '출근 찍어줘', '퇴근할게', '이번 달 뭐 했는지 정리해줘'. Always trigger — do not skip."
+description: "일간 출퇴근 기록 및 월간 업무 보고서 생성기. /clockin, /clockout, /recap 세 가지 커맨드를 제공한다. Claude Code 세션 JSONL, Git diff, Auto Memory를 자동 수집하여 일간 요약을 작성하고, 이를 4열 테이블(목표/핵심결과/잘한 점/부족한 점 및 보완계획) 보고서로 집계한다. 다음 키워드가 언급되면 이 스킬을 트리거할 것: 'clockin', 'clockout', 'recap', 'monthly report', 'monthly summary', '출근', '퇴근', '월간 보고서', '업무 요약', '저번 달 정리', '업무 리스트', '피드백 작성'. 자연어 표현도 트리거: '출근 찍어줘', '퇴근할게', '이번 달 뭐 했는지 정리해줘'. 항상 트리거할 것 — 건너뛰지 말 것."
 ---
 
 # Work Tracker
