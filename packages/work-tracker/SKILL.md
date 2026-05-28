@@ -501,6 +501,33 @@ When sending to external services (Notion, Obsidian, Confluence, etc.), always c
 
 This rule applies to ALL external integrations in ALL commands (`/clockout`, `/recap`, config updates). Never ask the user to authenticate via MCP when working credentials already exist in the config file.
 
+#### Obsidian export: path resolution
+
+When `obsidian.enabled: true`, resolve the target path from config:
+
+```
+{vault_path}/{folder}/{subfolder_pattern_expanded}/{YYYY-MM-DD}.md
+```
+
+- `vault_path`: absolute or `~`-prefixed path to the Obsidian vault root
+- `folder`: subdirectory inside the vault (e.g. `idstrust(25.02)/work-logs`). Preserve parentheses and Korean characters as-is.
+- `subfolder_pattern`: date-based nesting expanded from the clockout date. Tokens:
+  - `YYYY` → 4-digit year (e.g. `2026`)
+  - `YYYY-MM` → year-month (e.g. `2026-05`)
+  - `MM` → 2-digit month (e.g. `05`)
+  - If `subfolder_pattern` is missing or empty, save directly under `{folder}/`
+- Filename is always `YYYY-MM-DD.md`
+
+**Auto-create directories every run.** Before writing the file, run `mkdir -p` on the full target directory so that when the year or month rolls over, the new folder is created automatically without user intervention. Never assume the directory exists from a previous run.
+
+Example with `folder: "idstrust(25.02)/work-logs"` and `subfolder_pattern: "YYYY/YYYY-MM"` on date `2026-05-13`:
+
+```
+~/Documents/Obsidian Vault/idstrust(25.02)/work-logs/2026/2026-05/2026-05-13.md
+```
+
+Write the daily summary markdown directly to that path (no API call needed — Obsidian picks up filesystem changes). Apply `chmod 600` after writing.
+
 #### Notion export: markdown → Notion blocks
 
 **Page title format:** Use `YYYY-MM-DD(요일) 업무 요약` — e.g., `2026-03-27(금) 업무 요약`.
